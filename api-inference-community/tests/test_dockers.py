@@ -275,7 +275,7 @@ class DockerImageTests(unittest.TestCase):
         url = "http://localhost:8000"
         timeout = 60
         with DockerPopen(run_docker_command) as proc:
-            for i in range(400):
+            for _ in range(400):
                 try:
                     response = httpx.get(url, timeout=10)
                     break
@@ -352,7 +352,7 @@ class DockerImageTests(unittest.TestCase):
         timeout = 60
         counter = Counter()
         with DockerPopen(run_docker_command) as proc:
-            for i in range(400):
+            for _ in range(400):
                 try:
                     response = httpx.get(url, timeout=10)
                     break
@@ -452,9 +452,7 @@ class DockerImageTests(unittest.TestCase):
                                 )
                     else:
                         raise Exception("Invalid result")
-                elif response.headers["content-type"] == "audio/flac":
-                    pass
-                else:
+                elif response.headers["content-type"] != "audio/flac":
                     raise Exception("Unknown format")
 
             with open(
@@ -503,7 +501,7 @@ class DockerImageTests(unittest.TestCase):
 
         # Follow up loading are much faster, 20s should be ok.
         with DockerPopen(run_docker_command) as proc2:
-            for i in range(20):
+            for _ in range(20):
                 try:
                     response2 = httpx.get(url, timeout=10)
                     break

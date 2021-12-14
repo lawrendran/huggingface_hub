@@ -88,10 +88,12 @@ class SharedGenerationParams(BaseModel):
     def max_length_must_be_larger_than_min_length(
         cls, max_length: Optional[MinLength], values: Dict[str, Optional[str]]
     ):
-        if "min_length" in values:
-            if values["min_length"] is not None:
-                if max_length < values["min_length"]:
-                    raise ValueError("min_length cannot be larger than max_length")
+        if (
+            "min_length" in values
+            and values["min_length"] is not None
+            and max_length < values["min_length"]
+        ):
+            raise ValueError("min_length cannot be larger than max_length")
         return max_length
 
 
@@ -150,11 +152,10 @@ class StringOrStringBatchInputCheck(BaseModel):
 
     @validator("__root__")
     def input_must_not_be_empty(cls, __root__: Union[List[str], str]):
-        if isinstance(__root__, list):
-            if len(__root__) == 0:
-                raise ValueError(
-                    "The inputs are invalid, at least one input is required"
-                )
+        if isinstance(__root__, list) and len(__root__) == 0:
+            raise ValueError(
+                "The inputs are invalid, at least one input is required"
+            )
         return __root__
 
 
@@ -200,11 +201,10 @@ def check_params(params, tag):
 
 
 def check_inputs(inputs, tag):
-    if tag in INPUTS_MAPPING:
-        INPUTS_MAPPING[tag].parse_obj(inputs)
-        return True
-    else:
+    if tag not in INPUTS_MAPPING:
         raise ValueError(f"{tag} is not a valid pipeline.")
+    INPUTS_MAPPING[tag].parse_obj(inputs)
+    return True
 
 
 AUDIO_INPUTS = {
@@ -245,8 +245,7 @@ def normalize_payload(
             raise EnvironmentError(
                 "We cannot normalize audio file if we don't know the sampling rate"
             )
-        outputs = normalize_payload_audio(bpayload, sampling_rate)
-        return outputs
+        return normalize_payload_audio(bpayload, sampling_rate)
     elif task in IMAGE_INPUTS:
         return normalize_payload_image(bpayload)
     elif task in TEXT_INPUTS:

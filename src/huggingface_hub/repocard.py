@@ -21,15 +21,14 @@ REGEX_YAML_BLOCK = re.compile(r"---[\n\r]+([\S\s]*?)[\n\r]+---[\n\r]")
 def metadata_load(local_path: Union[str, Path]) -> Optional[Dict]:
     content = Path(local_path).read_text()
     match = REGEX_YAML_BLOCK.search(content)
-    if match:
-        yaml_block = match.group(1)
-        data = yaml.safe_load(yaml_block)
-        if isinstance(data, dict):
-            return data
-        else:
-            raise ValueError("repo card metadata block should be a dict")
-    else:
+    if not match:
         return None
+    yaml_block = match.group(1)
+    data = yaml.safe_load(yaml_block)
+    if isinstance(data, dict):
+        return data
+    else:
+        raise ValueError("repo card metadata block should be a dict")
 
 
 def metadata_save(local_path: Union[str, Path], data: Dict) -> None:

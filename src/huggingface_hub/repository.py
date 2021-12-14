@@ -155,7 +155,7 @@ def is_tracked_with_lfs(filename: Union[str, Path]) -> bool:
     found_lfs_tag = {"diff": False, "merge": False, "filter": False}
 
     for attribute in attributes.split("\n"):
-        for tag in found_lfs_tag.keys():
+        for tag in found_lfs_tag:
             if tag in attribute and "lfs" in attribute:
                 found_lfs_tag[tag] = True
 
@@ -195,10 +195,7 @@ def files_to_be_staged(pattern: str, folder: Union[str, Path]) -> List[str]:
             encoding="utf-8",
             cwd=folder,
         )
-        if len(p.stdout.strip()):
-            files = p.stdout.strip().split("\n")
-        else:
-            files = []
+        files = p.stdout.strip().split("\n") if len(p.stdout.strip()) else []
     except subprocess.CalledProcessError as exc:
         raise EnvironmentError(exc.stderr)
 
@@ -283,7 +280,7 @@ def lfs_log_progress():
                         break
 
                     line_bit = file.readline()
-                    if line_bit is not None and not len(line_bit.strip()) == 0:
+                    if line_bit is not None and len(line_bit.strip()) != 0:
                         current_line += line_bit
                         if current_line.endswith("\n"):
                             yield current_line
@@ -419,13 +416,12 @@ class Repository:
 
         if clone_from is not None:
             self.clone_from(repo_url=clone_from)
+        elif is_git_repo(self.local_dir):
+            logger.debug("[Repository] is a valid git repo")
         else:
-            if is_git_repo(self.local_dir):
-                logger.debug("[Repository] is a valid git repo")
-            else:
-                raise ValueError(
-                    "If not specifying `clone_from`, you need to pass Repository a valid git clone."
-                )
+            raise ValueError(
+                "If not specifying `clone_from`, you need to pass Repository a valid git clone."
+            )
 
         if self.huggingface_token is not None and (
             git_email is None or git_user is None
@@ -754,12 +750,9 @@ class Repository:
             status for status in modified_files_statuses if "D" in status.split()[0]
         ]
 
-        # Remove the D prefix and strip to keep only the relevant filename
-        deleted_files = [
+        return [
             status.split()[-1].strip() for status in deleted_files_statuses
         ]
-
-        return deleted_files
 
     def lfs_track(
         self, patterns: Union[str, List[str]], filename: Optional[bool] = False
@@ -843,7 +836,7 @@ class Repository:
                 continue
 
             path_to_file = os.path.join(os.getcwd(), self.local_dir, filename)
-            size_in_mb = os.path.getsize(path_to_file) / (1024 * 1024)
+            size_in_mb = os.path.getsize(path_to_file) / 1024**2
 
             if (
                 size_in_mb >= 10
@@ -1069,23 +1062,22 @@ class Repository:
         except subprocess.CalledProcessError as exc:
             if not create_branch_ok:
                 raise EnvironmentError(exc.stderr)
-            else:
-                command = f"git checkout -b {revision}"
-                try:
-                    result = subprocess.run(
-                        command.split(),
-                        stderr=subprocess.PIPE,
-                        stdout=subprocess.PIPE,
-                        check=True,
-                        encoding="utf-8",
-                        cwd=self.local_dir,
-                    )
-                    logger.warning(
-                        f"Revision `{revision}` does not exist. Created and checked out branch `{revision}`."
-                    )
-                    logger.warning(result.stdout)
-                except subprocess.CalledProcessError as exc:
-                    raise EnvironmentError(exc.stderr)
+            command = f"git checkout -b {revision}"
+            try:
+                result = subprocess.run(
+                    command.split(),
+                    stderr=subprocess.PIPE,
+                    stdout=subprocess.PIPE,
+                    check=True,
+                    encoding="utf-8",
+                    cwd=self.local_dir,
+                )
+                logger.warning(
+                    f"Revision `{revision}` does not exist. Created and checked out branch `{revision}`."
+                )
+                logger.warning(result.stdout)
+            except subprocess.CalledProcessError as exc:
+                raise EnvironmentError(exc.stderr)
 
     def tag_exists(self, tag_name: str, remote: Optional[str] = None) -> bool:
         """
@@ -1128,15 +1120,8 @@ class Repository:
         Return True if deleted.  Returns False if the tag didn't exist
         If remote is None, will just be updated locally
         """
-        delete_locally = True
-        delete_remotely = True
-
-        if not self.tag_exists(tag_name):
-            delete_locally = False
-
-        if not self.tag_exists(tag_name, remote=remote):
-            delete_remotely = False
-
+        delete_locally = bool(self.tag_exists(tag_name))
+        delete_remotely = bool(self.tag_exists(tag_name, remote=remote))
         if delete_locally:
             try:
                 subprocess.run(

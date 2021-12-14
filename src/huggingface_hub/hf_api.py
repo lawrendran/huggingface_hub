@@ -228,8 +228,7 @@ class DatasetInfo:
         return s + "\n}"
 
     def __str__(self):
-        r = f"Dataset Name: {self.id}, Tags: {self.tags}"
-        return r
+        return f"Dataset Name: {self.id}, Tags: {self.tags}"
 
 
 class MetricInfo:
@@ -261,8 +260,7 @@ class MetricInfo:
         return s + "\n}"
 
     def __str__(self):
-        r = f"Metric Name: {self.id}"
-        return r
+        return f"Metric Name: {self.id}"
 
 
 def write_to_credential_store(username: str, password: str):
@@ -469,21 +467,21 @@ class HfApi:
         path = f"{self.endpoint}/api/models"
         params = {}
         if filter is not None:
-            params.update({"filter": filter})
-            params.update({"full": True})
+            params["filter"] = filter
+            params["full"] = True
         if sort is not None:
-            params.update({"sort": sort})
+            params["sort"] = sort
         if direction is not None:
-            params.update({"direction": direction})
+            params["direction"] = direction
         if limit is not None:
-            params.update({"limit": limit})
+            params["limit"] = limit
         if full is not None:
             if full:
-                params.update({"full": True})
+                params["full"] = True
             elif "full" in params:
                 del params["full"]
         if fetch_config is not None:
-            params.update({"config": fetch_config})
+            params["config"] = fetch_config
         r = requests.get(path, params=params)
         r.raise_for_status()
         d = r.json()
@@ -531,16 +529,15 @@ class HfApi:
         path = f"{self.endpoint}/api/datasets"
         params = {}
         if filter is not None:
-            params.update({"filter": filter})
+            params["filter"] = filter
         if sort is not None:
-            params.update({"sort": sort})
+            params["sort"] = sort
         if direction is not None:
-            params.update({"direction": direction})
+            params["direction"] = direction
         if limit is not None:
-            params.update({"limit": limit})
-        if full is not None:
-            if full:
-                params.update({"full": True})
+            params["limit"] = limit
+        if full is not None and full:
+            params["full"] = True
         r = requests.get(path, params=params)
         r.raise_for_status()
         d = r.json()
@@ -711,16 +708,15 @@ class HfApi:
                     "`huggingface-cli login`."
                 )
         elif not self._is_valid_token(token):
-            if self._is_valid_token(name):
-                warnings.warn(
-                    "`create_repo` now takes `token` as an optional positional argument. "
-                    "Be sure to adapt your code!",
-                    FutureWarning,
-                )
-                token, name = name, token
-            else:
+            if not self._is_valid_token(name):
                 raise ValueError("Invalid token passed!")
 
+            warnings.warn(
+                "`create_repo` now takes `token` as an optional positional argument. "
+                "Be sure to adapt your code!",
+                FutureWarning,
+            )
+            token, name = name, token
         if repo_type not in REPO_TYPES:
             raise ValueError("Invalid repo type")
 
@@ -791,16 +787,15 @@ class HfApi:
                     "`huggingface-cli login`."
                 )
         elif not self._is_valid_token(token):
-            if self._is_valid_token(name):
-                warnings.warn(
-                    "`delete_repo` now takes `token` as an optional positional argument. "
-                    "Be sure to adapt your code!",
-                    FutureWarning,
-                )
-                token, name = name, token
-            else:
+            if not self._is_valid_token(name):
                 raise ValueError("Invalid token passed!")
 
+            warnings.warn(
+                "`delete_repo` now takes `token` as an optional positional argument. "
+                "Be sure to adapt your code!",
+                FutureWarning,
+            )
+            token, name = name, token
         if repo_type not in REPO_TYPES:
             raise ValueError("Invalid repo type")
 
@@ -837,16 +832,15 @@ class HfApi:
                     "`huggingface-cli login`."
                 )
         elif not self._is_valid_token(token):
-            if self._is_valid_token(name):
-                warnings.warn(
-                    "`update_repo_visibility` now takes `token` as an optional positional argument. "
-                    "Be sure to adapt your code!",
-                    FutureWarning,
-                )
-                token, name, private = name, private, token
-            else:
+            if not self._is_valid_token(name):
                 raise ValueError("Invalid token passed!")
 
+            warnings.warn(
+                "`update_repo_visibility` now takes `token` as an optional positional argument. "
+                "Be sure to adapt your code!",
+                FutureWarning,
+            )
+            token, name, private = name, private, token
         if organization is None:
             namespace = self.whoami(token)["name"]
         else:
@@ -945,21 +939,20 @@ class HfApi:
                     "`huggingface-cli login`."
                 )
         elif not self._is_valid_token(token):
-            if self._is_valid_token(path_or_fileobj):
-                warnings.warn(
-                    "`upload_file` now takes `token` as an optional positional argument. "
-                    "Be sure to adapt your code!",
-                    FutureWarning,
-                )
-                token, path_or_fileobj, path_in_repo, repo_id = (
-                    path_or_fileobj,
-                    path_in_repo,
-                    repo_id,
-                    token,
-                )
-            else:
+            if not self._is_valid_token(path_or_fileobj):
                 raise ValueError("Invalid token passed!")
 
+            warnings.warn(
+                "`upload_file` now takes `token` as an optional positional argument. "
+                "Be sure to adapt your code!",
+                FutureWarning,
+            )
+            token, path_or_fileobj, path_in_repo, repo_id = (
+                path_or_fileobj,
+                path_in_repo,
+                repo_id,
+                token,
+            )
         # Validate path_or_fileobj
         if isinstance(path_or_fileobj, str):
             path_or_fileobj = os.path.normpath(os.path.expanduser(path_or_fileobj))
@@ -998,15 +991,14 @@ class HfApi:
         try:
             r.raise_for_status()
         except HTTPError as err:
-            if identical_ok and err.response.status_code == 409:
-                from .file_download import hf_hub_url
-
-                return hf_hub_url(
-                    repo_id, path_in_repo, revision=revision, repo_type=repo_type
-                )
-            else:
+            if not identical_ok or err.response.status_code != 409:
                 raise err
 
+            from .file_download import hf_hub_url
+
+            return hf_hub_url(
+                repo_id, path_in_repo, revision=revision, repo_type=repo_type
+            )
         d = r.json()
         return d["url"]
 
@@ -1048,11 +1040,11 @@ class HfApi:
 
         if token is None:
             token = HfFolder.get_token()
-            if token is None:
-                raise EnvironmentError(
-                    "You need to provide a `token` or be logged in to Hugging Face with "
-                    "`huggingface-cli login`."
-                )
+        if token is None:
+            raise EnvironmentError(
+                "You need to provide a `token` or be logged in to Hugging Face with "
+                "`huggingface-cli login`."
+            )
 
         # Normalize path separators and strip leading slashes
         if not REMOTE_FILEPATH_REGEX.match(path_in_repo):
@@ -1097,11 +1089,10 @@ class HfApi:
             organization is passed, and under the organization namespace ({organization}/{model_id})
             otherwise.
         """
-        if organization is None:
-            username = self.whoami(token=token)["name"]
-            return f"{username}/{model_id}"
-        else:
+        if organization is not None:
             return f"{organization}/{model_id}"
+        username = self.whoami(token=token)["name"]
+        return f"{username}/{model_id}"
 
 
 class HfFolder:

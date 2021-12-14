@@ -12,7 +12,7 @@ setup(
     packages=["api_inference_community"],
     python_requires=">=3.6.0",
     zip_safe=False,
-    install_requires=list(line for line in open("requirements.txt", "r")),
+    install_requires=list(open("requirements.txt", "r")),
     extras_require={
         "test": [
             "httpx==0.18",

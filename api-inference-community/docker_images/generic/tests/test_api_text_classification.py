@@ -57,9 +57,9 @@ class TextClassificationTestCase(TestCase):
         self.assertEqual(len(content), 1)
         self.assertEqual(type(content[0]), list)
         self.assertEqual(
-            set(k for el in content[0] for k in el.keys()),
-            {"label", "score"},
+            {k for el in content[0] for k in el.keys()}, {"label", "score"}
         )
+
 
         with TestClient(self.app) as client:
             response = client.post("/", json=inputs)
@@ -73,8 +73,7 @@ class TextClassificationTestCase(TestCase):
         self.assertEqual(len(content), 1)
         self.assertEqual(type(content[0]), list)
         self.assertEqual(
-            set(k for el in content[0] for k in el.keys()),
-            {"label", "score"},
+            {k for el in content[0] for k in el.keys()}, {"label", "score"}
         )
 
     """

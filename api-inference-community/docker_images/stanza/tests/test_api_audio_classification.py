@@ -53,10 +53,7 @@ class AudioClassificationTestCase(TestCase):
         content = json.loads(response.content)
         self.assertEqual(type(content), list)
         self.assertEqual(type(content[0]), dict)
-        self.assertEqual(
-            set(k for el in content for k in el.keys()),
-            {"label", "score"},
-        )
+        self.assertEqual({k for el in content for k in el.keys()}, {"label", "score"})
 
     def test_malformed_audio(self):
         bpayload = self.read("malformed.flac")
@@ -84,10 +81,7 @@ class AudioClassificationTestCase(TestCase):
         content = json.loads(response.content)
         self.assertEqual(type(content), list)
         self.assertEqual(type(content[0]), dict)
-        self.assertEqual(
-            set(k for el in content for k in el.keys()),
-            {"label", "score"},
-        )
+        self.assertEqual({k for el in content for k in el.keys()}, {"label", "score"})
 
     def test_webm_audiofile(self):
         bpayload = self.read("sample1.webm")
@@ -103,7 +97,4 @@ class AudioClassificationTestCase(TestCase):
         content = json.loads(response.content)
         self.assertEqual(type(content), list)
         self.assertEqual(type(content[0]), dict)
-        self.assertEqual(
-            set(k for el in content for k in el.keys()),
-            {"label", "score"},
-        )
+        self.assertEqual({k for el in content for k in el.keys()}, {"label", "score"})

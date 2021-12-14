@@ -45,8 +45,7 @@ class ImageClassificationPipeline(Pipeline):
 
         values, indices = torch.topk(probabilities, self.top_k)
 
-        labels = [
+        return [
             {"label": self.labels[i], "score": v.item()}
             for i, v in zip(indices, values)
         ]
-        return labels
