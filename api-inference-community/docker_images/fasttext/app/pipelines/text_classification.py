@@ -23,7 +23,5 @@ class TextClassificationPipeline(Pipeline):
         if len(inputs.split()) > 1:
             raise ValueError("Expected input is a single word")
         preds = self.model.get_nearest_neighbors(inputs, k=5)
-        result = []
-        for distance, word in preds:
-            result.append({"label": word, "score": distance})
+        result = [{"label": word, "score": distance} for distance, word in preds]
         return [result]

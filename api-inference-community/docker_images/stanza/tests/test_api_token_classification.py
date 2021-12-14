@@ -75,7 +75,7 @@ class TokenClassificationTestCase(TestCase):
 
         self.assertEqual(type(content), list)
         self.assertEqual(
-            set(k for el in content for k in el.keys()),
+            {k for el in content for k in el.keys()},
             {"entity_group", "word", "start", "end", "score"},
         )
 

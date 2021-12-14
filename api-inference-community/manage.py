@@ -53,11 +53,10 @@ def resolve_dataset(args, task: str):
         print(f"Inferred dataset_config {args.dataset_config}")
 
     splits = builder.info.splits
-    if splits is not None:
-        if args.dataset_split not in splits:
-            raise ValueError(
-                f"The split `{args.dataset_split}` is not a valid split, please choose from {','.join(splits.keys())}"
-            )
+    if splits is not None and args.dataset_split not in splits:
+        raise ValueError(
+            f"The split `{args.dataset_split}` is not a valid split, please choose from {','.join(splits.keys())}"
+        )
 
     task_templates = builder.info.task_templates
     if task_templates is not None:
@@ -121,12 +120,12 @@ def resolve_task_framework(args):
     framework = args.framework
     if task is None or framework is None:
         rtask, rframework = resolve(model_id)
-        if task is None:
-            task = rtask
-            print(f"Inferred task : {task}")
-        if framework is None:
-            framework = rframework
-            print(f"Inferred framework : {framework}")
+    if task is None:
+        task = rtask
+        print(f"Inferred task : {task}")
+    if framework is None:
+        framework = rframework
+        print(f"Inferred framework : {framework}")
     return model_id, task, framework
 
 

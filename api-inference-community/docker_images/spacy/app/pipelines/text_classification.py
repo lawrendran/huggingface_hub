@@ -40,8 +40,8 @@ class TextClassificationPipeline(Pipeline):
         """
         doc = self.model(inputs)
 
-        categories = []
-        for cat, score in doc.cats.items():
-            categories.append({"label": cat, "score": score})
+        categories = [
+            {"label": cat, "score": score} for cat, score in doc.cats.items()
+        ]
 
         return [categories]

@@ -32,4 +32,4 @@ class AudioToAudioPipeline(Pipeline):
         out = separated[0]
         n = out.shape[0]
         labels = [f"label_{i}" for i in range(n)]
-        return separated[0], int(self.model.sample_rate), labels
+        return out, int(self.model.sample_rate), labels

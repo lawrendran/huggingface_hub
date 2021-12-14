@@ -51,10 +51,8 @@ class ImageClassificationTestCase(TestCase):
         )
         content = json.loads(response.content)
         self.assertEqual(type(content), list)
-        self.assertEqual(set(type(el) for el in content), dict)
-        self.assertEqual(
-            set(k for el in content for k in el.keys()), {"label", "score"}
-        )
+        self.assertEqual({type(el) for el in content}, dict)
+        self.assertEqual({k for el in content for k in el.keys()}, {"label", "score"})
 
     def test_different_resolution(self):
         bpayload = self.read("plane2.jpg")
@@ -68,7 +66,5 @@ class ImageClassificationTestCase(TestCase):
         )
         content = json.loads(response.content)
         self.assertEqual(type(content), list)
-        self.assertEqual(set(type(el) for el in content), dict)
-        self.assertEqual(
-            set(k for el in content for k in el.keys()), {"label", "score"}
-        )
+        self.assertEqual({type(el) for el in content}, dict)
+        self.assertEqual({k for el in content for k in el.keys()}, {"label", "score"})

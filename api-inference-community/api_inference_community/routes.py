@@ -31,9 +31,11 @@ async def pipeline_route(request: Request) -> Response:
             sampling_rate = None
         inputs, params = normalize_payload(payload, task, sampling_rate=sampling_rate)
     except ValidationError as e:
-        errors = []
-        for error in e.errors():
-            errors.append(f'{error["msg"]}: `{error["loc"][0]}` in `parameters`')
+        errors = [
+            f'{error["msg"]}: `{error["loc"][0]}` in `parameters`'
+            for error in e.errors()
+        ]
+
         return JSONResponse({"error": errors}, status_code=400)
     except (EnvironmentError, ValueError) as e:
         return JSONResponse({"error": str(e)}, status_code=400)

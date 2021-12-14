@@ -119,8 +119,7 @@ def tabulate(rows: List[List[Union[str, int]]], headers: List[str]) -> str:
     """
     col_widths = [max(len(str(x)) for x in col) for col in zip(*rows, headers)]
     row_format = ("{{:{}}} " * len(headers)).format(*col_widths)
-    lines = []
-    lines.append(row_format.format(*headers))
+    lines = [row_format.format(*headers)]
     lines.append(row_format.format(*["-" * w for w in col_widths]))
     for row in rows:
         lines.append(row_format.format(*row))
@@ -138,10 +137,12 @@ def currently_setup_credential_helpers(directory=None) -> List[str]:
             cwd=directory,
         ).stdout.split("\n")
 
-        current_credential_helpers = []
-        for line in output:
-            if "credential.helper" in line:
-                current_credential_helpers.append(line.split("=")[-1])
+        current_credential_helpers = [
+            line.split("=")[-1]
+            for line in output
+            if "credential.helper" in line
+        ]
+
     except subprocess.CalledProcessError as exc:
         raise EnvironmentError(exc.stderr)
 
@@ -209,7 +210,7 @@ class LogoutCommand(BaseUserCommand):
             self._api.logout(token)
         except HTTPError as e:
             # Logging out with an access token will return a client error.
-            if not e.response.status_code == 400:
+            if e.response.status_code != 400:
                 raise e
         print("Successfully logged out.")
 
@@ -278,7 +279,7 @@ class RepoCreateCommand(BaseUserCommand):
 
         if not self.args.yes:
             choice = input("Proceed? [Y/n] ").lower()
-            if not (choice == "" or choice == "y" or choice == "yes"):
+            if not choice in ["", "y", "yes"]:
                 print("Abort")
                 exit()
         try:

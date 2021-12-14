@@ -235,8 +235,7 @@ class ValidationTestCase(TestCase):
             def __call__(self, input_: str):
                 dirname = os.path.dirname(os.path.abspath(__file__))
                 filename = os.path.join(dirname, "samples", "plane.jpg")
-                returned_image = Image.open(filename)
-                return returned_image
+                return Image.open(filename)
 
         def get_pipeline():
             return Pipeline()

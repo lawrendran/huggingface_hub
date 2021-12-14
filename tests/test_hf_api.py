@@ -494,10 +494,7 @@ class HfApiPublicTest(unittest.TestCase):
         models = _api.list_models(
             filter="adapter-transformers", fetch_config=True, limit=20
         )
-        found_configs = 0
-        for model in models:
-            if model.config:
-                found_configs = found_configs + 1
+        found_configs = sum(1 for model in models if model.config)
         self.assertGreater(found_configs, 0)
 
     @with_production_testing

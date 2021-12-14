@@ -21,26 +21,13 @@ install_requires = [
     "packaging>=20.9",
 ]
 
-extras = {}
+extras = {
+    'torch': ["torch"],
+    'tensorflow': ["tensorflow"],
+    'testing': ["pytest", "datasets"],
+    'quality': ["black>=20.8b1", "isort>=5.5.4", "flake8>=3.8.3"],
+}
 
-extras["torch"] = [
-    "torch",
-]
-
-extras["tensorflow"] = [
-    "tensorflow",
-]
-
-extras["testing"] = [
-    "pytest",
-    "datasets",
-]
-
-extras["quality"] = [
-    "black>=20.8b1",
-    "isort>=5.5.4",
-    "flake8>=3.8.3",
-]
 
 extras["all"] = extras["testing"] + extras["quality"]
 

@@ -54,7 +54,4 @@ default_cache_path = os.path.join(hf_cache_home, "hub")
 HUGGINGFACE_HUB_CACHE = os.getenv("HUGGINGFACE_HUB_CACHE", default_cache_path)
 
 HF_HUB_OFFLINE = os.environ.get("HF_HUB_OFFLINE", "AUTO").upper()
-if HF_HUB_OFFLINE in ENV_VARS_TRUE_VALUES:
-    HF_HUB_OFFLINE = True
-else:
-    HF_HUB_OFFLINE = False
+HF_HUB_OFFLINE = HF_HUB_OFFLINE in ENV_VARS_TRUE_VALUES

@@ -62,9 +62,9 @@ class ImageClassificationTestCase(TestCase):
         )
         content = json.loads(response.content)
         self.assertEqual(type(content), list)
-        self.assertEqual(set(type(el) for el in content), {dict})
+        self.assertEqual({type(el) for el in content}, {dict})
         self.assertEqual(
-            set((k, type(v)) for el in content for (k, v) in el.items()),
+            {(k, type(v)) for el in content for (k, v) in el.items()},
             {("label", str), ("score", float)},
         )
 
@@ -80,7 +80,5 @@ class ImageClassificationTestCase(TestCase):
         )
         content = json.loads(response.content)
         self.assertEqual(type(content), list)
-        self.assertEqual(set(type(el) for el in content), {dict})
-        self.assertEqual(
-            set(k for el in content for k in el.keys()), {"label", "score"}
-        )
+        self.assertEqual({type(el) for el in content}, {dict})
+        self.assertEqual({k for el in content for k in el.keys()}, {"label", "score"})
